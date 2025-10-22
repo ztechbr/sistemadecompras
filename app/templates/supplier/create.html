@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Fornecedor - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex items-center">
+            <a href="{{ url_for('supplier.index') }}" class="text-gray-500 hover:text-gray-700 mr-4">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-plus mr-3"></i>Novo Fornecedor
+                </h1>
+                <p class="mt-2 text-gray-600">Cadastre um novo fornecedor no sistema</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="POST" action="{{ url_for('supplier.create') }}">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label for="vendor_name" class="block text-sm font-medium text-gray-700">
+                            Nome do Fornecedor *
+                        </label>
+                        <input type="text" name="vendor_name" id="vendor_name" required
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="Digite o nome do fornecedor">
+                    </div>
+
+                    <div>
+                        <label for="vendor_cnpj" class="block text-sm font-medium text-gray-700">
+                            CNPJ
+                        </label>
+                        <input type="text" name="vendor_cnpj" id="vendor_cnpj"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="00.000.000/0001-00">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">
+                            E-mail
+                        </label>
+                        <input type="email" name="email" id="email"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="contato@fornecedor.com">
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">
+                            Telefone
+                        </label>
+                        <input type="text" name="phone" id="phone"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="(11) 99999-9999">
+                    </div>
+
+                    <div>
+                        <label for="contact_person" class="block text-sm font-medium text-gray-700">
+                            Pessoa de Contato
+                        </label>
+                        <input type="text" name="contact_person" id="contact_person"
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                               placeholder="Nome da pessoa de contato">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="address" class="block text-sm font-medium text-gray-700">
+                            Endereço
+                        </label>
+                        <textarea name="address" id="address" rows="3"
+                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                  placeholder="Digite o endereço completo"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-3">
+                    <a href="{{ url_for('supplier.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-save mr-2"></i>Salvar Fornecedor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

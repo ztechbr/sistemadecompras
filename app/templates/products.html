@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Produtos{% endblock %}
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900"><i class="fas fa-box mr-2"></i>Gerenciar Produtos</h1>
+    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Novo Produto</button>
+</div>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Preço Médio</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for product in products %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ product.sku }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ product.product_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ product.average_unit_value|format_currency }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ product.status|status_badge_color }}">{{ product.status }}</span></td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button onclick="openEditModal({{ product.id }}, '{{ product.sku }}', '{{ product.product_name }}', '{{ product.description|replace('\n', ' ')|replace('\'', '\\\'') }}', {{ product.average_unit_value }}, '{{ product.status }}')" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div id="modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
+        <div class="bg-white rounded-lg overflow-hidden shadow-xl max-w-lg w-full">
+            <form id="form" method="POST" action="{{ url_for('admin.create_product') }}">
+                <div class="bg-white px-6 py-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4" id="modalTitle">Criar Produto</h3>
+                    <div class="space-y-4">
+                        <div><label class="block text-sm font-medium text-gray-700">SKU</label><input type="text" name="sku" id="sku" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Nome do Produto</label><input type="text" name="product_name" id="product_name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Descrição</label><textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Preço Médio (R$)</label><input type="number" name="average_unit_value" id="average_unit_value" step="0.01" min="0" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Status</label><select name="status" id="status" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="bg-white py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openModal(){document.getElementById('modal').classList.remove('hidden');document.getElementById('form').action='{{ url_for("admin.create_product") }}';document.getElementById('modalTitle').textContent='Criar Produto';document.getElementById('sku').value='';document.getElementById('sku').readOnly=false;document.getElementById('product_name').value='';document.getElementById('description').value='';document.getElementById('average_unit_value').value='0';document.getElementById('status').value='ATIVO';}
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
+function openEditModal(id,sku,name,desc,price,status){document.getElementById('modal').classList.remove('hidden');document.getElementById('form').action=`/admin/products/${id}/edit`;document.getElementById('modalTitle').textContent='Editar Produto';document.getElementById('sku').value=sku;document.getElementById('sku').readOnly=true;document.getElementById('product_name').value=name;document.getElementById('description').value=desc;document.getElementById('average_unit_value').value=price;document.getElementById('status').value=status;}
+</script>
+{% endblock %}
+

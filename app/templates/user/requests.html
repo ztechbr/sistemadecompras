@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Requisições - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-file-alt mr-3"></i>Minhas Requisições
+                </h1>
+                <p class="mt-2 text-gray-600">Gerencie suas requisições de compra</p>
+            </div>
+            <div>
+                <a href="{{ url_for('purchase_request.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-plus mr-2"></i>Nova Requisição
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if requests %}
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+            {% for request in requests %}
+            <li>
+                <div class="px-4 py-4 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full {% if request.status == 'PENDING' %}bg-yellow-100{% elif request.status == 'APPROVED' %}bg-green-100{% elif request.status == 'REJECTED' %}bg-red-100{% else %}bg-gray-100{% endif %} flex items-center justify-center">
+                                <i class="fas fa-file-alt {% if request.status == 'PENDING' %}text-yellow-600{% elif request.status == 'APPROVED' %}text-green-600{% elif request.status == 'REJECTED' %}text-red-600{% else %}text-gray-600{% endif %}"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ request.request_number }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ request.product.name if request.product else 'Produto não encontrado' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-box mr-1"></i>
+                            {{ request.quantity }} {{ request.unit }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-calendar mr-1"></i>
+                            {{ request.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if request.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                            {% elif request.status == 'APPROVED' %}bg-green-100 text-green-800
+                            {% elif request.status == 'REJECTED' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if request.status == 'PENDING' %}Pendente
+                            {% elif request.status == 'APPROVED' %}Aprovada
+                            {% elif request.status == 'REJECTED' %}Rejeitada
+                            {% else %}{{ request.status }}{% endif %}
+                        </span>
+                        <div class="flex space-x-2">
+                            <a href="{{ url_for('purchase_request.view', request_id=request.id) }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-file-alt text-gray-400 text-6xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma requisição encontrada</h3>
+        <p class="text-gray-500 mb-6">Você ainda não criou nenhuma requisição de compra.</p>
+        <a href="{{ url_for('purchase_request.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+            <i class="fas fa-plus mr-2"></i>Nova Requisição
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

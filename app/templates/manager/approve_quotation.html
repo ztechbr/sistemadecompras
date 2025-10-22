@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Aprovar Cotação #{{ quotation.id }} - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex items-center">
+            <a href="{{ url_for('manager.quotations') }}" class="text-gray-500 hover:text-gray-700 mr-4">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-check-circle mr-3"></i>Aprovar Cotação #{{ quotation.id }}
+                </h1>
+                <p class="mt-2 text-gray-600">Aprove ou rejeite esta cotação</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações da Cotação -->
+    <div class="bg-white shadow sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informações da Cotação</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Número da Cotação</label>
+                    <div class="mt-1 text-sm text-gray-900">#{{ quotation.id }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Requisição</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ quotation.purchase_request.request_number if quotation.purchase_request else 'N/A' }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                    <div class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if quotation.status == 'DRAFT' %}bg-gray-100 text-gray-800
+                            {% elif quotation.status == 'RELEASED' %}bg-blue-100 text-blue-800
+                            {% elif quotation.status == 'APPROVED' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if quotation.status == 'DRAFT' %}Rascunho
+                            {% elif quotation.status == 'RELEASED' %}Liberada
+                            {% elif quotation.status == 'APPROVED' %}Aprovada
+                            {% else %}{{ quotation.status }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Comprador</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ quotation.purchaser.name if quotation.purchaser else 'N/A' }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Criação</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ quotation.created_at.strftime('%d/%m/%Y às %H:%M') }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Liberação</label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {% if quotation.released_at %}
+                            {{ quotation.released_at.strftime('%d/%m/%Y às %H:%M') }}
+                        {% else %}
+                            Não liberada
+                        {% endif %}
+                    </div>
+                </div>
+                {% if quotation.notes %}
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Observações</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ quotation.notes }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Aprovação -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Ação de Aprovação</h3>
+            
+            <form method="POST" action="{{ url_for('manager.approve_quotation', quotation_id=quotation.id) }}">
+                <div class="mb-4">
+                    <label for="action" class="block text-sm font-medium text-gray-700 mb-2">
+                        Escolha a ação
+                    </label>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="radio" id="approve" name="action" value="approve" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300">
+                            <label for="approve" class="ml-2 block text-sm text-gray-900">
+                                <i class="fas fa-check text-green-600 mr-1"></i>Aprovar Cotação
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="reject" name="action" value="reject" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300">
+                            <label for="reject" class="ml-2 block text-sm text-gray-900">
+                                <i class="fas fa-times text-red-600 mr-1"></i>Rejeitar Cotação
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notes" class="block text-sm font-medium text-gray-700">
+                        Observações (opcional)
+                    </label>
+                    <textarea name="notes" id="notes" rows="3"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              placeholder="Adicione observações sobre a aprovação ou rejeição"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('manager.quotations') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-save mr-2"></i>Confirmar Ação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

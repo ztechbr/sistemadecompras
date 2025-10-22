@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Parâmetros do Sistema{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900"><i class="fas fa-cog mr-2"></i>Parâmetros do Sistema</h1>
+    <p class="text-gray-600 mt-2">Configurações gerais do sistema</p>
+</div>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Parâmetro</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for param in parameters %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ param.param_key }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ param.param_value }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ param.description }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button onclick="openModal({{ param.id }}, '{{ param.param_key }}', '{{ param.param_value }}', '{{ param.description }}')" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div id="modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
+        <div class="bg-white rounded-lg overflow-hidden shadow-xl max-w-lg w-full">
+            <form id="form" method="POST">
+                <div class="bg-white px-6 py-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Editar Parâmetro</h3>
+                    <div class="space-y-4">
+                        <div><label class="block text-sm font-medium text-gray-700">Parâmetro</label><input type="text" id="key" readonly class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Valor</label><input type="text" name="param_value" id="value" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
+                        <div><label class="block text-sm font-medium text-gray-700">Descrição</label><textarea id="desc" readonly rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100"></textarea></div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="bg-white py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openModal(id,key,value,desc){document.getElementById('modal').classList.remove('hidden');document.getElementById('form').action=`/admin/parameters/${id}/edit`;document.getElementById('key').value=key;document.getElementById('value').value=value;document.getElementById('desc').value=desc;}
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
+</script>
+{% endblock %}
+

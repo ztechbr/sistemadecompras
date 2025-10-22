@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema de Compras{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        .dropdown-menu {
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script>
+        // JavaScript puro para dropdowns - sem dependência do Alpine.js
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing dropdowns...');
+            initDropdowns();
+        });
+        
+        function initDropdowns() {
+            const dropdownButtons = document.querySelectorAll('[data-dropdown-toggle]');
+            
+            dropdownButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const dropdownId = this.getAttribute('data-dropdown-toggle');
+                    const dropdown = document.getElementById(dropdownId);
+                    
+                    console.log('Toggling dropdown:', dropdownId);
+                    
+                    // Fechar todos os outros dropdowns
+                    document.querySelectorAll('[data-dropdown]').forEach(dd => {
+                        if (dd.id !== dropdownId) {
+                            dd.style.display = 'none';
+                        }
+                    });
+                    
+                    // Toggle do dropdown atual
+                    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+                        dropdown.style.display = 'block';
+                        console.log('Dropdown opened:', dropdownId);
+                    } else {
+                        dropdown.style.display = 'none';
+                        console.log('Dropdown closed:', dropdownId);
+                    }
+                });
+            });
+            
+            // Fechar dropdowns ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('[data-dropdown-toggle]') && !e.target.closest('[data-dropdown]')) {
+                    document.querySelectorAll('[data-dropdown]').forEach(dd => {
+                        dd.style.display = 'none';
+                    });
+                }
+            });
+            
+            console.log('Dropdowns initialized successfully');
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    {% if current_user.is_authenticated %}
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8" id="main-menu">
+                        <!-- Dashboard -->
+                        <a href="{{ url_for('main.dashboard') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        
+                        <!-- Nova Requisição -->
+                        <a href="{{ url_for('purchase_request.create') }}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            <i class="fas fa-plus mr-2"></i>Nova Requisição
+                        </a>
+                        
+                        <!-- Ações Aprovador -->
+                        <div class="relative">
+                            <button data-dropdown-toggle="dropdown-approver" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-check-circle mr-2"></i>Ações Aprovador
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div id="dropdown-approver" data-dropdown class="absolute top-full left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 dropdown-menu" style="display: none;">
+                                <div class="py-1">
+                                    <a href="{{ url_for('manager.requests') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-file-check mr-2"></i>Aprovar Requisição
+                                    </a>
+                                    <a href="{{ url_for('manager.quotations') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-shopping-bag mr-2"></i>Aprovar Pedido de Compras
+                                    </a>
+                                    <a href="{{ url_for('manager.payments') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-dollar-sign mr-2"></i>Aprovar Pagamento
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cadastros -->
+                        <div class="relative">
+                            <button data-dropdown-toggle="dropdown-cadastros" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-database mr-2"></i>Cadastros
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div id="dropdown-cadastros" data-dropdown class="absolute top-full left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 dropdown-menu" style="display: none;">
+                                <div class="py-1">
+                                    <a href="{{ url_for('admin.users') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-users mr-2"></i>Usuários
+                                    </a>
+                                    <a href="{{ url_for('admin.departments') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-building mr-2"></i>Departamentos
+                                    </a>
+                                    <a href="{{ url_for('admin.products') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-box mr-2"></i>Produtos
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ações em Compras/Recebimento -->
+                        <div class="relative">
+                            <button data-dropdown-toggle="dropdown-compras" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-shopping-cart mr-2"></i>Ações em Compras/Recebimento
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div id="dropdown-compras" data-dropdown class="absolute top-full left-0 mt-1 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 dropdown-menu" style="display: none;">
+                                <div class="py-1">
+                                    <a href="{{ url_for('quotation.create_form') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-plus mr-2"></i>Nova Cotação
+                                    </a>
+                                    <a href="{{ url_for('quotation.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-clipboard-list mr-2"></i>Cotações
+                                    </a>
+                                    <a href="{{ url_for('purchaser.quotations') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-map mr-2"></i>Mapa de Cotações
+                                    </a>
+                                    <a href="{{ url_for('purchase_order.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-shopping-bag mr-2"></i>Pedidos
+                                    </a>
+                                    <a href="{{ url_for('invoice.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-file-invoice mr-2"></i>Notas Fiscais
+                                    </a>
+                                    <a href="{{ url_for('payment_request.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-dollar-sign mr-2"></i>Pagamentos
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a href="{{ url_for('supplier.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-truck mr-2"></i>Fornecedores
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Visualizar -->
+                        <div class="relative">
+                            <button data-dropdown-toggle="dropdown-visualizar" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                                <i class="fas fa-eye mr-2"></i>Visualizar
+                                <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div id="dropdown-visualizar" data-dropdown class="absolute top-full left-0 mt-1 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 dropdown-menu" style="display: none;">
+                                <div class="py-1">
+                                    <a href="{{ url_for('purchase_request.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-list mr-2"></i>Lista de Requisições
+                                    </a>
+                                    <a href="{{ url_for('quotation.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-clipboard-list mr-2"></i>Lista de Cotações
+                                    </a>
+                                    <a href="{{ url_for('purchase_order.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-shopping-bag mr-2"></i>Lista de Pedidos
+                                    </a>
+                                    <a href="{{ url_for('invoice.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-file-invoice mr-2"></i>Lista de Notas Fiscais
+                                    </a>
+                                    <a href="{{ url_for('payment_request.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-dollar-sign mr-2"></i>Lista de Pagamentos
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <!-- Indicador de Ambiente -->
+                    <div class="mr-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                            {% if current_environment == 'DEV' %}bg-green-100 text-green-800
+                            {% elif current_environment == 'HOM' %}bg-yellow-100 text-yellow-800
+                            {% elif current_environment == 'PRD' %}bg-red-100 text-red-800
+                            {% endif %}">
+                            <i class="fas fa-server mr-1"></i>
+                            {{ current_environment_name }}
+                        </span>
+                    </div>
+                    
+                    <div class="ml-3 relative" x-data="{ open: false }">
+                        <div>
+                            <button @click="open = !open" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <span class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                    <i class="fas fa-user-circle mr-2"></i>
+                                    {{ current_user.username }}
+                                    <i class="fas fa-chevron-down ml-2"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div x-show="open" @click.away="open = false" x-cloak class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
+                            <div class="px-4 py-2 text-xs text-gray-500 border-b">
+                                {{ current_user.role|role_label }}
+                                {% if current_user.department %}
+                                <br>{{ current_user.department.name }}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Trocar Ambiente -->
+                            <div class="px-4 py-2 border-b">
+                                <div class="text-xs text-gray-500 mb-2">Trocar Ambiente:</div>
+                                <form method="POST" action="{{ url_for('auth.switch_environment') }}" class="space-y-1">
+                                    {% for env_code, env_config in available_environments.items() %}
+                                    {% if env_code != current_environment %}
+                                    <button type="submit" name="environment" value="{{ env_code }}" 
+                                            class="w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100 rounded">
+                                        <i class="fas fa-server mr-1"></i>{{ env_config.name }}
+                                    </button>
+                                    {% endif %}
+                                    {% endfor %}
+                                </form>
+                            </div>
+                            
+                            <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for category, message in messages %}
+            <div class="rounded-md p-4 mb-4 {% if category == 'success' %}bg-green-50 border border-green-200{% elif category == 'danger' %}bg-red-50 border border-red-200{% elif category == 'warning' %}bg-yellow-50 border border-yellow-200{% else %}bg-blue-50 border border-blue-200{% endif %}" x-data="{ show: true }" x-show="show">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if category == 'success' %}
+                        <i class="fas fa-check-circle text-green-400"></i>
+                        {% elif category == 'danger' %}
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                        {% elif category == 'warning' %}
+                        <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle text-blue-400"></i>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm {% if category == 'success' %}text-green-800{% elif category == 'danger' %}text-red-800{% elif category == 'warning' %}text-yellow-800{% else %}text-blue-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                    <div class="ml-auto pl-3">
+                        <button @click="show = false" class="inline-flex {% if category == 'success' %}text-green-400 hover:text-green-500{% elif category == 'danger' %}text-red-400 hover:text-red-500{% elif category == 'warning' %}text-yellow-400 hover:text-yellow-500{% else %}text-blue-400 hover:text-blue-500{% endif %}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-lg mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <p class="text-center text-sm text-gray-500">
+                &copy; 2025 Sistema de Compras. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+

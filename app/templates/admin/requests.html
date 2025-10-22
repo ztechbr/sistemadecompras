@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Todas as Requisições{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-list mr-2"></i>Todas as Requisições
+        </h1>
+        <p class="text-gray-600 mt-2">Visualize todas as requisições do sistema</p>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <form method="GET" class="flex items-center space-x-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Status</label>
+            <select name="status" class="border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Todos os status</option>
+                <option value="PENDENTE" {% if status_filter == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                <option value="APROVADA" {% if status_filter == 'APROVADA' %}selected{% endif %}>Aprovada</option>
+                <option value="REJEITADA" {% if status_filter == 'REJEITADA' %}selected{% endif %}>Rejeitada</option>
+                <option value="EM_COTACAO" {% if status_filter == 'EM_COTACAO' %}selected{% endif %}>Em Cotação</option>
+                <option value="COTADA" {% if status_filter == 'COTADA' %}selected{% endif %}>Cotada</option>
+                <option value="ORDENADA" {% if status_filter == 'ORDENADA' %}selected{% endif %}>Ordenada</option>
+            </select>
+        </div>
+        <div class="pt-6">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                <i class="fas fa-filter mr-2"></i>Filtrar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Tabela de Requisições -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qtd</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Est.</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for req in requests.items %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                    {{ req.request_number }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-circle text-lg text-gray-400 mr-2"></i>
+                        <div class="text-sm font-medium text-gray-900">{{ req.requester.username }}</div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ req.requester.department.name if req.requester.department else '-' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ req.product.product_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ req.quantity }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ req.estimated_total|format_currency }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ req.status|status_badge_color }}">
+                        {{ req.status|status_label }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ req.created_at|format_date }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{{ url_for('user.view_request', request_id=req.id) }}" class="text-blue-600 hover:text-blue-900" title="Visualizar">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                    Nenhuma requisição encontrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginação -->
+{% if requests.pages > 1 %}
+<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-6">
+    <div class="flex-1 flex justify-between sm:hidden">
+        {% if requests.has_prev %}
+        <a href="{{ url_for('admin.requests', page=requests.prev_num, status=status_filter) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Anterior
+        </a>
+        {% endif %}
+        {% if requests.has_next %}
+        <a href="{{ url_for('admin.requests', page=requests.next_num, status=status_filter) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Próximo
+        </a>
+        {% endif %}
+    </div>
+    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                Mostrando
+                <span class="font-medium">{{ (requests.page - 1) * requests.per_page + 1 }}</span>
+                até
+                <span class="font-medium">{{ requests.page * requests.per_page if requests.page * requests.per_page < requests.total else requests.total }}</span>
+                de
+                <span class="font-medium">{{ requests.total }}</span>
+                resultados
+            </p>
+        </div>
+        <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                {% if requests.has_prev %}
+                <a href="{{ url_for('admin.requests', page=requests.prev_num, status=status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span class="sr-only">Anterior</span>
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for page_num in requests.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != requests.page %}
+                        <a href="{{ url_for('admin.requests', page=page_num, status=status_filter) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ page_num }}
+                        </a>
+                        {% else %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                            {{ page_num }}
+                        </span>
+                        {% endif %}
+                    {% else %}
+                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                        ...
+                    </span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if requests.has_next %}
+                <a href="{{ url_for('admin.requests', page=requests.next_num, status=status_filter) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span class="sr-only">Próximo</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

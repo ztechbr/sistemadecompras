@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Requisição {{ request.request_number }}{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900"><i class="fas fa-file-alt mr-2"></i>Requisição {{ request.request_number }}</h1>
+    <p class="text-gray-600 mt-2">Detalhes da requisição de compra</p>
+</div>
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="grid grid-cols-2 gap-6">
+        <div><p class="text-sm font-medium text-gray-500">Status</p><span class="mt-1 px-3 py-1 inline-flex text-sm font-semibold rounded-full {{ request.get_status_color() }}-100 text-{{ request.get_status_color() }}-800">{{ request.get_status_label() }}</span></div>
+        <div><p class="text-sm font-medium text-gray-500">Data da Solicitação</p><p class="mt-1 text-sm text-gray-900">{{ request.created_at|format_datetime }}</p></div>
+        <div><p class="text-sm font-medium text-gray-500">Produto</p><p class="mt-1 text-sm text-gray-900">{{ request.product.sku }} - {{ request.product.product_name }}</p></div>
+        <div><p class="text-sm font-medium text-gray-500">Quantidade</p><p class="mt-1 text-sm text-gray-900">{{ request.quantity }}</p></div>
+        <div><p class="text-sm font-medium text-gray-500">Valor Estimado</p><p class="mt-1 text-sm text-gray-900">{{ request.estimated_total|format_currency }}</p></div>
+        <div><p class="text-sm font-medium text-gray-500">Dias desde solicitação</p><p class="mt-1 text-sm text-gray-900">{{ request.days_since_request() }} dias</p></div>
+        {% if request.approved_by %}
+        <div><p class="text-sm font-medium text-gray-500">Aprovado por</p><p class="mt-1 text-sm text-gray-900">{{ request.approver.username }} em {{ request.approved_at|format_datetime }}</p></div>
+        {% endif %}
+        {% if request.rejected_by %}
+        <div><p class="text-sm font-medium text-gray-500">Rejeitado por</p><p class="mt-1 text-sm text-gray-900">{{ request.rejector.username }} em {{ request.rejected_at|format_datetime }}</p></div>
+        <div class="col-span-2"><p class="text-sm font-medium text-gray-500">Motivo da rejeição</p><p class="mt-1 text-sm text-red-600">{{ request.rejected_reason }}</p></div>
+        {% endif %}
+        {% if request.notes %}
+        <div class="col-span-2"><p class="text-sm font-medium text-gray-500">Observações</p><p class="mt-1 text-sm text-gray-900">{{ request.notes }}</p></div>
+        {% endif %}
+    </div>
+</div>
+{% if request.status == 'PURCHASED' %}
+<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+    <p class="text-sm text-yellow-800"><i class="fas fa-exclamation-triangle mr-2"></i>Esta compra foi realizada. Por favor, <a href="{{ url_for('user.inform_invoice', request_id=request.id) }}" class="font-semibold underline">informe os dados da nota fiscal</a>.</p>
+</div>
+{% endif %}
+<div class="mt-6"><a href="{{ url_for('user.requests') }}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-arrow-left mr-2"></i>Voltar para lista</a></div>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Aprovar Pagamentos - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-dollar-sign mr-3"></i>Aprovar Pagamentos
+                </h1>
+                <p class="mt-2 text-gray-600">Gerencie a aprovação de pagamentos</p>
+            </div>
+        </div>
+    </div>
+
+    {% if payment_requests %}
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+            {% for payment in payment_requests %}
+            <li>
+                <div class="px-4 py-4 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full {% if payment.status == 'AGUARDANDO_PAGAMENTO' %}bg-yellow-100{% elif payment.status == 'PAGO' %}bg-green-100{% elif payment.status == 'CANCELADO' %}bg-red-100{% else %}bg-gray-100{% endif %} flex items-center justify-center">
+                                <i class="fas fa-dollar-sign {% if payment.status == 'AGUARDANDO_PAGAMENTO' %}text-yellow-600{% elif payment.status == 'PAGO' %}text-green-600{% elif payment.status == 'CANCELADO' %}text-red-600{% else %}text-gray-600{% endif %}"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ payment.request_number }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                Nota Fiscal: {{ payment.invoice.invoice_number if payment.invoice else 'N/A' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-dollar-sign mr-1"></i>
+                            R$ {{ "%.2f"|format(payment.approved_value) }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-user mr-1"></i>
+                            {{ payment.creator.name if payment.creator else 'Usuário não encontrado' }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-calendar mr-1"></i>
+                            {{ payment.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if payment.status == 'AGUARDANDO_PAGAMENTO' %}bg-yellow-100 text-yellow-800
+                            {% elif payment.status == 'PAGO' %}bg-green-100 text-green-800
+                            {% elif payment.status == 'CANCELADO' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if payment.status == 'AGUARDANDO_PAGAMENTO' %}Pendente
+                            {% elif payment.status == 'PAGO' %}Pago
+                            {% elif payment.status == 'CANCELADO' %}Cancelado
+                            {% else %}{{ payment.status }}{% endif %}
+                        </span>
+                        <div class="flex space-x-2">
+                            <a href="{{ url_for('payment_request.view', payment_id=payment.id) }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </a>
+                            {% if payment.status == 'AGUARDANDO_PAGAMENTO' %}
+                            <a href="{{ url_for('manager.approve_payment', payment_id=payment.id) }}" class="text-green-600 hover:text-green-900 text-sm font-medium">
+                                <i class="fas fa-check mr-1"></i>Aprovar
+                            </a>
+                            <a href="{{ url_for('manager.reject_payment', payment_id=payment.id) }}" class="text-red-600 hover:text-red-900 text-sm font-medium">
+                                <i class="fas fa-times mr-1"></i>Rejeitar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-dollar-sign text-gray-400 text-6xl mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum pagamento encontrado</h3>
+        <p class="text-gray-500 mb-6">Não há pagamentos pendentes de aprovação.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

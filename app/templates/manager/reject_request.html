@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Rejeitar Requisição {{ request.request_number }} - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex items-center">
+            <a href="{{ url_for('manager.requests') }}" class="text-gray-500 hover:text-gray-700 mr-4">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-times-circle mr-3"></i>Rejeitar Requisição {{ request.request_number }}
+                </h1>
+                <p class="mt-2 text-gray-600">Rejeite esta requisição de compra</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações da Requisição -->
+    <div class="bg-white shadow sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informações da Requisição</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Produto</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.product.name if request.product else 'N/A' }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Quantidade</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.quantity }} {{ request.unit }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor Estimado</label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {% if request.estimated_total %}
+                            R$ {{ "%.2f"|format(request.estimated_total) }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Requisitante</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.requester.name if request.requester else 'N/A' }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Departamento</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.department.name if request.department else 'N/A' }}</div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Criação</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.created_at.strftime('%d/%m/%Y às %H:%M') }}</div>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Justificativa</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.justification }}</div>
+                </div>
+                {% if request.notes %}
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Observações</label>
+                    <div class="mt-1 text-sm text-gray-900">{{ request.notes }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário de Rejeição -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Motivo da Rejeição</h3>
+            
+            <form method="POST" action="{{ url_for('manager.reject_request', request_id=request.id) }}">
+                <div class="mb-4">
+                    <label for="rejected_reason" class="block text-sm font-medium text-gray-700">
+                        Motivo da Rejeição *
+                    </label>
+                    <textarea name="rejected_reason" id="rejected_reason" rows="4" required
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              placeholder="Descreva o motivo da rejeição desta requisição"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label for="notes" class="block text-sm font-medium text-gray-700">
+                        Observações Adicionais (opcional)
+                    </label>
+                    <textarea name="notes" id="notes" rows="3"
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                              placeholder="Adicione observações adicionais sobre a rejeição"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('manager.requests') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <i class="fas fa-times mr-2"></i>Confirmar Rejeição
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

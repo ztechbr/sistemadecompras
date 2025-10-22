@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Requisição {{ request.request_number }} - Sistema de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <div class="flex items-center">
+            <a href="{{ url_for('purchase_request.index') }}" class="text-gray-500 hover:text-gray-700 mr-4">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-file-alt mr-3"></i>Requisição {{ request.request_number }}
+                </h1>
+                <p class="mt-2 text-gray-600">Detalhes da requisição de compra</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Número da Requisição
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900 font-medium">
+                        {{ request.request_number }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Status
+                    </label>
+                    <div class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if request.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                            {% elif request.status == 'APPROVED' %}bg-green-100 text-green-800
+                            {% elif request.status == 'REJECTED' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if request.status == 'PENDING' %}Pendente
+                            {% elif request.status == 'APPROVED' %}Aprovada
+                            {% elif request.status == 'REJECTED' %}Rejeitada
+                            {% else %}{{ request.status }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Produto
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.product.name if request.product else 'Produto não encontrado' }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Quantidade
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.quantity }} {{ request.unit }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Requisitante
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.requester.name if request.requester else 'Usuário não encontrado' }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Departamento
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.department.name if request.department else 'Departamento não encontrado' }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Data de Criação
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.created_at.strftime('%d/%m/%Y às %H:%M') }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Valor Estimado Total
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {% if request.estimated_total %}
+                            R$ {{ "%.2f"|format(request.estimated_total) }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Justificativa
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.justification }}
+                    </div>
+                </div>
+
+                {% if request.notes %}
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Observações
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.notes }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if request.approved_at %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Data de Aprovação
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.approved_at.strftime('%d/%m/%Y às %H:%M') }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Aprovado por
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.approved_by.name if request.approved_by else 'Usuário não encontrado' }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if request.rejected_at %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Data de Rejeição
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.rejected_at.strftime('%d/%m/%Y às %H:%M') }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">
+                        Rejeitado por
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.rejected_by.name if request.rejected_by else 'Usuário não encontrado' }}
+                    </div>
+                </div>
+
+                {% if request.rejected_reason %}
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">
+                        Motivo da Rejeição
+                    </label>
+                    <div class="mt-1 text-sm text-gray-900">
+                        {{ request.rejected_reason }}
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="mt-6 flex justify-end space-x-3">
+                <a href="{{ url_for('purchase_request.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

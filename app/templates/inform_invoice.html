@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Informar Nota Fiscal{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900"><i class="fas fa-file-invoice mr-2"></i>Informar Nota Fiscal</h1>
+    <p class="text-gray-600 mt-2">Requisição {{ request.request_number }}</p>
+</div>
+<div class="max-w-2xl">
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dados da Compra</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div><p class="text-sm font-medium text-gray-500">Produto</p><p class="mt-1 text-sm text-gray-900">{{ request.product.product_name }}</p></div>
+            <div><p class="text-sm font-medium text-gray-500">Quantidade</p><p class="mt-1 text-sm text-gray-900">{{ request.quantity }}</p></div>
+            <div><p class="text-sm font-medium text-gray-500">Fornecedor</p><p class="mt-1 text-sm text-gray-900">{{ purchase_order.quotation_item.vendor_name }}</p></div>
+            <div><p class="text-sm font-medium text-gray-500">Valor da Compra</p><p class="mt-1 text-sm text-gray-900">{{ purchase_order.quotation_item.total_value|format_currency }}</p></div>
+        </div>
+    </div>
+    <form method="POST" action="{{ url_for('user.inform_invoice', request_id=request.id) }}" class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Dados da Nota Fiscal</h3>
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-file-alt mr-2"></i>Número da Nota Fiscal</label>
+                <input type="text" name="invoice_number" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Ex: 12345">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-building mr-2"></i>CNPJ do Fornecedor</label>
+                <input type="text" name="vendor_cnpj" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="00.000.000/0000-00">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-dollar-sign mr-2"></i>Valor Total da NF (com impostos)</label>
+                <input type="number" name="total_value" step="0.01" min="0" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"><i class="fas fa-comment mr-2"></i>Observações</label>
+                <textarea name="notes" rows="3" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Informações adicionais..."></textarea>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+            <a href="{{ url_for('user.view_request', request_id=request.id) }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</a>
+            <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700"><i class="fas fa-check mr-2"></i>Informar NF</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
