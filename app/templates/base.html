@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Compras{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         [x-cloak] { display: none !important; }
@@ -120,9 +121,6 @@
                                     <a href="{{ url_for('admin.departments') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-building mr-2"></i>Departamentos
                                     </a>
-                                    <a href="{{ url_for('admin.products') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <i class="fas fa-box mr-2"></i>Produtos
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -156,6 +154,9 @@
                                     <div class="border-t border-gray-100 my-1"></div>
                                     <a href="{{ url_for('supplier.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-truck mr-2"></i>Fornecedores
+                                    </a>
+                                    <a href="{{ url_for('admin.products') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-box mr-2"></i>Produtos
                                     </a>
                                 </div>
                             </div>

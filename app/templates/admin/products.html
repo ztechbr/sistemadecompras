@@ -31,24 +31,43 @@
         </tbody>
     </table>
 </div>
-<div id="modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
-        <div class="bg-white rounded-lg overflow-hidden shadow-xl max-w-lg w-full">
+<div id="modal" class="hidden fixed z-50 inset-0 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
             <form id="form" method="POST" action="{{ url_for('admin.create_product') }}">
                 <div class="bg-white px-6 py-4">
                     <h3 class="text-lg font-medium text-gray-900 mb-4" id="modalTitle">Criar Produto</h3>
                     <div class="space-y-4">
-                        <div><label class="block text-sm font-medium text-gray-700">SKU</label><input type="text" name="sku" id="sku" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                        <div><label class="block text-sm font-medium text-gray-700">Nome do Produto</label><input type="text" name="product_name" id="product_name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                        <div><label class="block text-sm font-medium text-gray-700">Descrição</label><textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea></div>
-                        <div><label class="block text-sm font-medium text-gray-700">Preço Médio (R$)</label><input type="number" name="average_unit_value" id="average_unit_value" step="0.01" min="0" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></div>
-                        <div><label class="block text-sm font-medium text-gray-700">Status</label><select name="status" id="status" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"><option value="ATIVO">Ativo</option><option value="INATIVO">Inativo</option></select></div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">SKU</label>
+                            <input type="text" name="sku" id="sku" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nome do Produto</label>
+                            <input type="text" name="product_name" id="product_name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                            <textarea name="description" id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Preço Médio (R$)</label>
+                            <input type="number" name="average_unit_value" id="average_unit_value" step="0.01" min="0" value="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" id="status" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="ATIVO">Ativo</option>
+                                <option value="INATIVO">Inativo</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-6 py-3 flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()" class="bg-white py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700">Salvar</button>
+                    <button type="button" onclick="closeModal()" class="bg-white py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Salvar</button>
                 </div>
             </form>
         </div>
@@ -57,9 +76,51 @@
 {% endblock %}
 {% block scripts %}
 <script>
-function openModal(){document.getElementById('modal').classList.remove('hidden');document.getElementById('form').action='{{ url_for("admin.create_product") }}';document.getElementById('modalTitle').textContent='Criar Produto';document.getElementById('sku').value='';document.getElementById('sku').readOnly=false;document.getElementById('product_name').value='';document.getElementById('description').value='';document.getElementById('average_unit_value').value='0';document.getElementById('status').value='ATIVO';}
-function closeModal(){document.getElementById('modal').classList.add('hidden');}
-function openEditModal(id,sku,name,desc,price,status){document.getElementById('modal').classList.remove('hidden');document.getElementById('form').action=`/admin/products/${id}/edit`;document.getElementById('modalTitle').textContent='Editar Produto';document.getElementById('sku').value=sku;document.getElementById('sku').readOnly=true;document.getElementById('product_name').value=name;document.getElementById('description').value=desc;document.getElementById('average_unit_value').value=price;document.getElementById('status').value=status;}
+function openModal() {
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('form').action = '{{ url_for("admin.create_product") }}';
+    document.getElementById('modalTitle').textContent = 'Criar Produto';
+    document.getElementById('sku').value = '';
+    document.getElementById('sku').readOnly = false;
+    document.getElementById('product_name').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('average_unit_value').value = '0';
+    document.getElementById('status').value = 'ATIVO';
+    document.getElementById('sku').focus();
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+function openEditModal(id, sku, name, desc, price, status) {
+    document.getElementById('modal').classList.remove('hidden');
+    document.getElementById('form').action = `/admin/products/${id}/edit`;
+    document.getElementById('modalTitle').textContent = 'Editar Produto';
+    document.getElementById('sku').value = sku;
+    document.getElementById('sku').readOnly = true;
+    document.getElementById('product_name').value = name;
+    document.getElementById('description').value = desc;
+    document.getElementById('average_unit_value').value = price;
+    document.getElementById('status').value = status;
+    document.getElementById('product_name').focus();
+}
+
+// Fechar modal com tecla ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+
+// Prevenir fechamento do modal ao clicar dentro dele
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('modal');
+    const modalContent = modal.querySelector('.inline-block');
+    if (event.target === modal) {
+        closeModal();
+    }
+});
 </script>
 {% endblock %}
 
