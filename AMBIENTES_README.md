@@ -10,27 +10,6 @@ O sistema agora suporta 3 ambientes diferentes que podem ser selecionados durant
 
 ## Configuração dos Ambientes
 
-As configurações dos ambientes estão definidas no arquivo `environment_config.py`:
-
-```python
-ENVIRONMENTS = {
-    'DEV': {
-        'name': 'Desenvolvimento',
-        'database_url': 'postgresql+pg8000://user:pass@prod-host:5432/purchase_db',
-        'description': 'Ambiente de desenvolvimento'
-    },
-    'HOM': {
-        'name': 'Homologação',
-        'database_url': 'postgresql+pg8000://zaza:Q1w2e3r4t5!@212.85.19.7:9090/purchase_db',
-        'description': 'Ambiente de homologação'
-    },
-    'PRD': {
-        'name': 'Produção',
-        'database_url': 'postgresql+pg8000://dev:CaralhoAgoraFudeu!@34.234.136.242:9666/purchase_db?sslmode=disable',
-        'description': 'Ambiente de produção'
-    }
-}
-```
 
 ## Como Usar
 
