@@ -52,7 +52,6 @@ def create():
         try:
             product_id = request.form.get('product_id')
             quantity = request.form.get('quantity')
-            unit = request.form.get('unit')
             justification = request.form.get('justification')
             notes = request.form.get('notes')
             
@@ -68,10 +67,11 @@ def create():
                 user_id=current_user.id,
                 product_id=product_id,
                 quantity=int(quantity),
-                unit=unit,
+                unit='UN',
                 justification=justification,
                 estimated_total=estimated_total,
-                notes=notes
+                notes=notes,
+                status='AGUARDANDO_COTACAO'
             )
             
             db.session.add(request_obj)

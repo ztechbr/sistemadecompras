@@ -55,7 +55,11 @@ def requests():
 @login_required_only
 def create_quotation(request_id):
     """Criar mapa de cotações"""
-    purchase_request = PurchaseRequest.query.get_or_404(request_id)
+    try:
+        purchase_request = PurchaseRequest.query.get_or_404(request_id)
+    except ValueError:
+        flash('ID da requisição inválido.', 'danger')
+        return redirect(url_for('purchaser.quotations'))
     
     if purchase_request.status not in ['APPROVED', 'IN_QUOTATION']:
         flash('Esta requisição não está disponível para cotação.', 'danger')
@@ -136,6 +140,44 @@ def quotations():
     ).order_by(PurchaseRequest.created_at.desc()).all()
     
     return render_template('purchaser/quotations.html', requests=requests)
+
+@purchaser_bp.route('/map-quotations')
+@login_required
+@login_required_only
+def map_quotations():
+    """Mapa de cotações - mostra requisições com suas cotações em grid"""
+    # Buscar requisições que têm cotações ou estão em processo de cotação
+    requests_with_quotations = db.session.query(PurchaseRequest).filter(
+        PurchaseRequest.status.in_(['EM_COTACAO', 'QUOTED', 'VENDOR_APPROVED', 'PURCHASED'])
+    ).order_by(PurchaseRequest.created_at.desc()).all()
+    
+    # Buscar requisições disponíveis para cotação (para o modal)
+    try:
+        available_requests = db.session.query(PurchaseRequest).filter(
+            PurchaseRequest.status.in_(['APPROVED', 'AGUARDANDO_COTACAO'])
+        ).order_by(PurchaseRequest.created_at.desc()).all()
+    except Exception as e:
+        available_requests = []
+    
+    # Para cada requisição, buscar suas cotações e itens
+    request_data = []
+    for request in requests_with_quotations:
+        quotations = Quotation.query.filter_by(purchase_request_id=request.id).all()
+        quotation_items = []
+        
+        for quotation in quotations:
+            items = QuotationItem.query.filter_by(quotation_id=quotation.id).order_by(QuotationItem.total_value.asc()).all()
+            quotation_items.extend(items)
+        
+        request_data.append({
+            'request': request,
+            'quotations': quotations,
+            'quotation_items': quotation_items[:3]  # Máximo 3 cotações por requisição
+        })
+    
+    return render_template('purchaser/map_quotations.html', 
+                         request_data=request_data, 
+                         available_requests=available_requests)
 
 @purchaser_bp.route('/quotations/<int:quotation_id>')
 @login_required
