@@ -17,7 +17,7 @@ class PurchaseRequest(db.Model):
     unit = db.Column(db.String(20), nullable=False, default='UN')
     justification = db.Column(db.Text, nullable=False)
     estimated_total = db.Column(db.Numeric(15, 2))
-    status = db.Column(db.String(30), nullable=False, default='AGUARDANDO_COTACAO')
+    status = db.Column(db.String(30), nullable=False, default='PENDING')
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     approved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
@@ -45,39 +45,53 @@ class PurchaseRequest(db.Model):
     
     def is_pending(self):
         """Verifica se a solicitação está pendente"""
-        return self.status == 'AGUARDANDO_COTACAO'
+        return self.status == 'PENDING'
     
     def is_approved(self):
         """Verifica se a solicitação foi aprovada"""
-        return self.status == 'APROVADA'
+        return self.status == 'APPROVED'
     
     def is_rejected(self):
         """Verifica se a solicitação foi rejeitada"""
-        return self.status == 'CANCELADA'
+        return self.status == 'REJECTED'
     
     def is_in_quotation(self):
         """Verifica se está em cotação"""
-        return self.status == 'EM_COTACAO'
+        return self.status == 'IN_QUOTATION'
     
     def get_status_label(self):
         """Retorna o label do status"""
         labels = {
-            'AGUARDANDO_COTACAO': 'Aguardando Cotação',
-            'EM_COTACAO': 'Em Cotação',
-            'AGUARDANDO_APROVACAO': 'Aguardando Aprovação',
-            'APROVADA': 'Aprovada',
-            'CANCELADA': 'Cancelada'
+            'PENDING': 'Aguardando Aprovação',
+            'APPROVED': 'Aprovada',
+            'REJECTED': 'Rejeitada',
+            'IN_QUOTATION': 'Em Cotação',
+            'EM_COTACAO': 'Em Cotação',  # Status antigo
+            'QUOTED': 'Cotada',
+            'VENDOR_APPROVED': 'Fornecedor Aprovado',
+            'PURCHASED': 'Comprada',
+            'INVOICE_RECEIVED': 'Nota Fiscal Recebida',
+            'PAYMENT_RELEASED': 'Pagamento Liberado',
+            'PAID': 'Paga',
+            'CANCELLED': 'Cancelada'
         }
         return labels.get(self.status, self.status)
     
     def get_status_color(self):
         """Retorna a cor do status"""
         colors = {
-            'AGUARDANDO_COTACAO': 'yellow',
-            'EM_COTACAO': 'blue',
-            'AGUARDANDO_APROVACAO': 'orange',
-            'APROVADA': 'green',
-            'CANCELADA': 'red'
+            'PENDING': 'yellow',
+            'APPROVED': 'green',
+            'REJECTED': 'red',
+            'IN_QUOTATION': 'blue',
+            'EM_COTACAO': 'blue',  # Status antigo
+            'QUOTED': 'purple',
+            'VENDOR_APPROVED': 'green',
+            'PURCHASED': 'green',
+            'INVOICE_RECEIVED': 'blue',
+            'PAYMENT_RELEASED': 'orange',
+            'PAID': 'green',
+            'CANCELLED': 'red'
         }
         return colors.get(self.status, 'gray')
     
@@ -103,17 +117,17 @@ class PurchaseRequest(db.Model):
     @classmethod
     def get_pending_requests(cls):
         """Retorna todas as requisições pendentes"""
-        return cls.query.filter_by(status='AGUARDANDO_COTACAO').order_by(cls.created_at).all()
+        return cls.query.filter_by(status='PENDING').order_by(cls.created_at).all()
     
     @classmethod
     def get_approved_requests(cls):
         """Retorna todas as requisições aprovadas"""
-        return cls.query.filter_by(status='APROVADA').order_by(cls.created_at).all()
+        return cls.query.filter_by(status='APPROVED').order_by(cls.created_at).all()
     
     @classmethod
     def get_rejected_requests(cls):
         """Retorna todas as requisições rejeitadas"""
-        return cls.query.filter_by(status='CANCELADA').order_by(cls.created_at).all()
+        return cls.query.filter_by(status='REJECTED').order_by(cls.created_at).all()
     
     def can_be_approved_by(self, user):
         """Verifica se o usuário pode aprovar esta requisição"""

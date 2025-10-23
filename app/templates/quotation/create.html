@@ -36,7 +36,7 @@
                                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                         <option value="">Selecione uma requisição</option>
                                         {% for req in requests %}
-                                        <option value="{{ req.id }}">
+                                        <option value="{{ req.id }}" {% if selected_request_id and req.id == selected_request_id %}selected{% endif %}>
                                             {{ req.request_number }} - {{ req.product_ref.product_name }} ({{ req.quantity }} {{ req.unit }})
                                         </option>
                                         {% endfor %}
@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const unitValueInput = document.getElementById('unit_value');
     const quantityInput = document.getElementById('quantity');
     const totalValueInput = document.getElementById('total_value');
+    const purchaseRequestSelect = document.getElementById('purchase_request_id');
     
     function calculateTotal() {
         const unitValue = parseFloat(unitValueInput.value) || 0;
@@ -158,6 +159,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         totalValueInput.value = total.toFixed(2).replace('.', ',');
     }
+    
+    // Preencher quantidade automaticamente quando selecionar uma requisição
+    purchaseRequestSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            // Extrair quantidade do texto da opção (formato: "REQ-xxx - Produto (2 UN)")
+            const match = selectedOption.text.match(/\((\d+)\s+(\w+)\)/);
+            if (match) {
+                quantityInput.value = match[1];
+                calculateTotal();
+            }
+        }
+    });
     
     unitValueInput.addEventListener('input', calculateTotal);
     quantityInput.addEventListener('input', calculateTotal);

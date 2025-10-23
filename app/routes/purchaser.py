@@ -61,7 +61,7 @@ def create_quotation(request_id):
         flash('ID da requisição inválido.', 'danger')
         return redirect(url_for('purchaser.quotations'))
     
-    if purchase_request.status not in ['APPROVED', 'IN_QUOTATION']:
+    if purchase_request.status not in ['PENDING', 'APPROVED', 'IN_QUOTATION', 'EM_COTACAO']:
         flash('Esta requisição não está disponível para cotação.', 'danger')
         return redirect(url_for('purchaser.requests'))
     
@@ -136,7 +136,7 @@ def quotations():
     """Lista de requisições para mapeamento de cotações"""
     # Buscar requisições que precisam de cotação ou estão em cotação
     requests = PurchaseRequest.query.filter(
-        PurchaseRequest.status.in_(['AGUARDANDO_COTACAO', 'EM_COTACAO', 'APPROVED'])
+        PurchaseRequest.status.in_(['PENDING', 'IN_QUOTATION', 'APPROVED', 'EM_COTACAO'])
     ).order_by(PurchaseRequest.created_at.desc()).all()
     
     return render_template('purchaser/quotations.html', requests=requests)
@@ -148,13 +148,13 @@ def map_quotations():
     """Mapa de cotações - mostra requisições com suas cotações em grid"""
     # Buscar requisições que têm cotações ou estão em processo de cotação
     requests_with_quotations = db.session.query(PurchaseRequest).filter(
-        PurchaseRequest.status.in_(['EM_COTACAO', 'QUOTED', 'VENDOR_APPROVED', 'PURCHASED'])
+        PurchaseRequest.status.in_(['IN_QUOTATION', 'QUOTED', 'VENDOR_APPROVED', 'PURCHASED', 'EM_COTACAO'])
     ).order_by(PurchaseRequest.created_at.desc()).all()
     
     # Buscar requisições disponíveis para cotação (para o modal)
     try:
         available_requests = db.session.query(PurchaseRequest).filter(
-            PurchaseRequest.status.in_(['APPROVED', 'AGUARDANDO_COTACAO'])
+            PurchaseRequest.status.in_(['PENDING', 'APPROVED', 'EM_COTACAO'])
         ).order_by(PurchaseRequest.created_at.desc()).all()
     except Exception as e:
         available_requests = []

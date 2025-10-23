@@ -162,7 +162,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e) {
     
     if (requestId && requestId.trim() !== '' && !isNaN(requestId)) {
         // Redirecionar diretamente para a URL correta
-        window.location.href = "{{ url_for('purchaser.create_quotation', request_id=0) }}".replace('0', requestId);
+        window.location.href = "{{ url_for('quotation.create_form') }}?request_id=" + requestId;
     } else {
         alert('Por favor, selecione uma requisição válida.');
     }

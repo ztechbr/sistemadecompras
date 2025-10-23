@@ -48,9 +48,27 @@ def by_request(request_id):
 def create_form():
     """Formulário para criar nova cotação"""
     # Buscar requisições que precisam de cotação
-    requests = PurchaseRequest.query.filter_by(status='AGUARDANDO_COTACAO').all()
+    requests = PurchaseRequest.query.filter(
+        PurchaseRequest.status.in_(['PENDING', 'APPROVED', 'EM_COTACAO'])
+    ).all()
     
-    return render_template('quotation/create.html', requests=requests)
+    # Verificar se há um request_id específico para pré-selecionar
+    request_id = request.args.get('request_id', type=int)
+    selected_request_id = None
+    
+    if request_id:
+        # Verificar se a requisição existe e está disponível para cotação
+        selected_request = PurchaseRequest.query.filter(
+            PurchaseRequest.id == request_id,
+            PurchaseRequest.status.in_(['PENDING', 'APPROVED', 'EM_COTACAO'])
+        ).first()
+        
+        if selected_request:
+            selected_request_id = request_id
+    
+    return render_template('quotation/create.html', 
+                         requests=requests, 
+                         selected_request_id=selected_request_id)
 
 @quotation_bp.route('/create', methods=['POST'])
 @login_required
@@ -122,8 +140,8 @@ def create():
         db.session.add(quotation_item)
         
         # Atualizar status da requisição
-        if request_obj.status == 'AGUARDANDO_COTACAO':
-            request_obj.status = 'EM_COTACAO'
+        if request_obj.status == 'PENDING':
+            request_obj.status = 'IN_QUOTATION'
         
         db.session.commit()
         

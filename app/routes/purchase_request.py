@@ -71,7 +71,7 @@ def create():
                 justification=justification,
                 estimated_total=estimated_total,
                 notes=notes,
-                status='AGUARDANDO_COTACAO'
+                status='PENDING'
             )
             
             db.session.add(request_obj)
