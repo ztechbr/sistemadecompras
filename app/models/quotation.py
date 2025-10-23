@@ -86,3 +86,16 @@ class Quotation(db.Model):
         """Retorna os itens da cotação ordenados por valor"""
         from ..models import QuotationItem
         return QuotationItem.query.filter_by(quotation_id=self.id).order_by(QuotationItem.total_value.asc()).all()
+    
+    def get_total_value(self):
+        """Calcula o valor total da cotação baseado nos itens"""
+        from ..models import QuotationItem
+        items = QuotationItem.query.filter_by(quotation_id=self.id).all()
+        total = sum(item.total_value for item in items)
+        return total
+    
+    @property
+    def purchaser(self):
+        """Retorna o comprador da cotação"""
+        from ..models import User
+        return User.query.get(self.purchaser_id)

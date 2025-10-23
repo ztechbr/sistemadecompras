@@ -22,54 +22,77 @@
 
     {% if quotations %}
     <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul class="divide-y divide-gray-200">
-            {% for quotation in quotations %}
-            <li>
-                <div class="px-4 py-4 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="h-10 w-10 rounded-full {% if quotation.status == 'DRAFT' %}bg-gray-100{% elif quotation.status == 'RELEASED' %}bg-blue-100{% elif quotation.status == 'APPROVED' %}bg-green-100{% else %}bg-gray-100{% endif %} flex items-center justify-center">
-                                <i class="fas fa-clipboard-list {% if quotation.status == 'DRAFT' %}text-gray-600{% elif quotation.status == 'RELEASED' %}text-blue-600{% elif quotation.status == 'APPROVED' %}text-green-600{% else %}text-gray-600{% endif %}"></i>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cotação #</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requisição</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Cotação</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome do Comprador</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data da Cotação</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for quotation in quotations %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="h-8 w-8 rounded-full {% if quotation.status == 'DRAFT' %}bg-gray-100{% elif quotation.status == 'RELEASED' %}bg-blue-100{% elif quotation.status == 'APPROVED' %}bg-green-100{% else %}bg-gray-100{% endif %} flex items-center justify-center">
+                                        <i class="fas fa-clipboard-list {% if quotation.status == 'DRAFT' %}text-gray-600{% elif quotation.status == 'RELEASED' %}text-blue-600{% elif quotation.status == 'APPROVED' %}text-green-600{% else %}text-gray-600{% endif %} text-xs"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">#{{ quotation.id }}</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">
-                                Cotação #{{ quotation.id }}
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                Requisição: {{ quotation.purchase_request.request_number if quotation.purchase_request else 'N/A' }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-500">
-                            <i class="fas fa-user mr-1"></i>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ quotation.purchase_request.request_number if quotation.purchase_request else 'N/A' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ quotation.purchase_request.requester.name if quotation.purchase_request and quotation.purchase_request.requester else 'N/A' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% set total_value = quotation.get_total_value() %}
+                            {% if total_value > 0 %}
+                                R$ {{ "%.2f"|format(total_value) }}
+                            {% else %}
+                                R$ 0,00
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ quotation.purchaser.name if quotation.purchaser else 'Comprador não encontrado' }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            <i class="fas fa-calendar mr-1"></i>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ quotation.created_at.strftime('%d/%m/%Y') }}
-                        </div>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                            {% if quotation.status == 'DRAFT' %}bg-gray-100 text-gray-800
-                            {% elif quotation.status == 'RELEASED' %}bg-blue-100 text-blue-800
-                            {% elif quotation.status == 'APPROVED' %}bg-green-100 text-green-800
-                            {% else %}bg-gray-100 text-gray-800{% endif %}">
-                            {% if quotation.status == 'DRAFT' %}Rascunho
-                            {% elif quotation.status == 'RELEASED' %}Liberada
-                            {% elif quotation.status == 'APPROVED' %}Aprovada
-                            {% else %}{{ quotation.status }}{% endif %}
-                        </span>
-                        <div class="flex space-x-2">
-                            <a href="{{ url_for('quotation.by_request', request_id=quotation.purchase_request_id) }}" class="text-blue-600 hover:text-blue-900 text-sm font-medium">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if quotation.status == 'DRAFT' %}bg-gray-100 text-gray-800
+                                {% elif quotation.status == 'RELEASED' %}bg-blue-100 text-blue-800
+                                {% elif quotation.status == 'APPROVED' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if quotation.status == 'DRAFT' %}Rascunho
+                                {% elif quotation.status == 'RELEASED' %}Liberada
+                                {% elif quotation.status == 'APPROVED' %}Aprovada
+                                {% else %}{{ quotation.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('quotation.by_request', request_id=quotation.purchase_request_id) }}" class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-eye mr-1"></i>Ver
                             </a>
-                        </div>
-                    </div>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
     {% else %}
     <div class="text-center py-12">
